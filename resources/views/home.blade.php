@@ -231,6 +231,7 @@
             <div class="row">
                 <div class="col-12 col-md-6 mb-3 mb-lg-0">
                     <div class="py-5 px-8 rounded"
+<<<<<<< Updated upstream
                         style="background: url(/storage/product_images/baneer4.png) no-repeat; background-size: cover; background-position: center; padding:15px;">
                         <h3 class="fw-bold mb-1">最火泡面</h3>
                         <p class="mb-4">
@@ -270,6 +271,9 @@
                             @endauth                   
                             </div>
                         </div>
+=======
+                        style="background: url(/storage/product_images/whychooseus.png) no-repeat; background-size: cover; background-position: center; height:200px;">
+>>>>>>> Stashed changes
                     </div>
                 </div>
             </div>
