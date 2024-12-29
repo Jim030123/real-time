@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
     .alert {
         position: relative;
@@ -61,13 +63,29 @@
     .card-img-top {
         width: 100%;
         height: 150px;
-        object-fit: cover;
+        object-fit: contain;
         border-radius: 8px;
     }
 
 
     .card-body {
         text-align: center;
+    }
+    .out-of-stock {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 1.2rem;
+    }
+    .custom-link {
+        color: black;       
+        font-weight: bold;   
+        text-decoration: none;
     }
 
 </style>
@@ -77,44 +95,53 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Products</div>
-                <div class="card-body">
-                    <div id="notification"></div>
-                    <div class="row">
-                        @foreach($products as $product)
-                        <div class="col-md-3 mb-3">
-                            <div class="card" data-id="{{ $product->id }}">
-                                <img src="{{ $product->productImage ? asset('storage/' . $product->productImage) : 'https://via.placeholder.com/150' }}" class="card-img-top" alt="{{ $product->productName }}">
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold">{{ $product->productName }}</h5>
-                                    <p class="card-text">
-                                        <strong>Price: </strong> RM{{ number_format($product->productPrice, 2) }}<br>
-                                        <strong>Stock: </strong> <span class="product-quantity">{{ $product->productQuantity }}</span><br>
-                                        <span class="badge badge-success">Preferred</span>
-                                        <span class="badge badge-warning">10% Cashback</span>
-                                    </p>
-                                    <div class="justify-content-between align-items-center">
-                                        <button class="btn btn-primary add-to-cart" data-id="{{ $product->id }}" @if($product->productQuantity <= 0) disabled @endif>
-                                                Add to Cart
-                                        </button>
-                                    </div>
+                <div class="card-header d-flex justify-content-between align-items-center" style="font-weight: bold; font-size: 24px;">
+                    <span><a href="userProducts" class="custom-link">Products</a></span>
+                    <form method="GET" action="{{ url('userProducts') }}" class="position-relative">
+                        <input type="text" name="search" class="form-control w-150 pl-5" placeholder="Search Products..." value="{{ $search }}">
+                        <!-- 放大镜图标 -->
+                        <button type="submit" class="btn btn-link position-absolute" style="top: 50%; right: 10px; transform: translateY(-50%); padding: 0;">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </button>
+                    </form>
+                </div>
+                <div id="notification"></div>
+                <div class="row" id="product-list">
+                    @foreach($products as $product)
+                    <div class="col-md-3 mb-3 product-item" data-name="{{ strtolower($product->productName) }}">
+                        <div class="card" data-id="{{ $product->id }}">
+                            <img src="{{ $product->productImage ? asset('storage/' . $product->productImage) : 'https://via.placeholder.com/150' }}" class="card-img-top" alt="{{ $product->productName }}">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">{{ $product->productName }}</h5>
+                                <p class="card-text">
+                                    <strong>Price: </strong> RM{{ number_format($product->productPrice, 2) }}<br>
+                                    <strong>Stock: </strong> <span class="product-quantity">{{ $product->productQuantity }}</span><br>
+                                </p>
+                                @if($product->productQuantity <= 0)
+                                    <div class="out-of-stock">Out of Stock</div>
+                                @endif
+                                <div class="justify-content-between align-items-center">
+                                    <button class="btn btn-primary add-to-cart" data-id="{{ $product->id }}" @if($product->productQuantity <= 0) disabled @endif>
+                                        Add to Cart
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
                     </div>
-                    <div class="mt-3 d-flex justify-content-center">
-                        {{ $products->links() }}
-                    </div>
-
+                    @endforeach
+                </div>
+                <div class="mt-3 d-flex justify-content-center">
+                    {{ $products->appends(['search' => $search])->links() }}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 @endif
+
 @endsection
-@section("script")
 @section("script")
 <script type="module">
     window.Echo.channel("products")
@@ -125,7 +152,7 @@
         }
     });
 
-window.Echo.channel("products")
+    window.Echo.channel("products")
     .listen(".addToCart", (e) => {
         if (@json(auth()->user()->is_admin)) {
             const notification = document.getElementById('notification');
@@ -135,42 +162,96 @@ window.Echo.channel("products")
         const productCard = document.querySelector(`.card[data-id="${e.product.id}"]`);
         if (productCard) {
             const quantityElement = productCard.querySelector('.product-quantity');
+            const addToCartButton = productCard.querySelector('.add-to-cart');
+            const outOfStockElement = productCard.querySelector('.out-of-stock');
+
             if (quantityElement) {
                 quantityElement.textContent = e.product.productQuantity;
             }
 
-            const addToCartButton = productCard.querySelector('.add-to-cart');
             if (addToCartButton) {
                 addToCartButton.disabled = e.product.productQuantity <= 0;
+            }
+
+            if (e.product.productQuantity <= 0) {
+                // 如果没有 "Out of Stock" 标签，添加
+                if (!outOfStockElement) {
+                    const outOfStockDiv = document.createElement('div');
+                    outOfStockDiv.className = 'out-of-stock';
+                    outOfStockDiv.textContent = 'Out of Stock';
+                    productCard.appendChild(outOfStockDiv);
+                }
+            } else if (outOfStockElement) {
+                // 如果库存大于 0，移除 "Out of Stock" 标签
+                outOfStockElement.remove();
             }
         }
     });
 
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('add-to-cart')) {
-        const productId = event.target.getAttribute('data-id');
-        
-        fetch('/cart/addToCart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ productId })
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => { throw err });
+    window.Echo.channel('products')
+    .listen('.update', (e) => {
+        const notification = document.getElementById('notification');
+        notification.insertAdjacentHTML('beforeend', `<div class="alert alert-info">${e.message}</div>`);
+
+        const productCard = document.querySelector(`.card[data-id="${e.product.id}"]`);
+        if (productCard) {
+            const quantityElement = productCard.querySelector('.product-quantity');
+            const addToCartButton = productCard.querySelector('.add-to-cart');
+            const outOfStockElement = productCard.querySelector('.out-of-stock');
+
+            if (quantityElement) {
+                quantityElement.textContent = e.product.quantity;
             }
-            return response.json();
-        })
-        .then(data => {
-            alert(data.message || 'Product added to cart!');
-        })
-        .catch(error => {
-            alert(error.message || 'Unable to add product to cart.');
-        });
-    }
-});
+
+            if (addToCartButton) {
+                addToCartButton.disabled = e.product.quantity <= 0;
+            }
+
+            if (e.product.quantity <= 0) {
+                // 如果没有 "Out of Stock" 标签，添加
+                if (!outOfStockElement) {
+                    const outOfStockDiv = document.createElement('div');
+                    outOfStockDiv.className = 'out-of-stock';
+                    outOfStockDiv.textContent = 'Out of Stock';
+                    productCard.appendChild(outOfStockDiv);
+                }
+            } else if (outOfStockElement) {
+                // 如果库存大于 0，移除 "Out of Stock" 标签
+                outOfStockElement.remove();
+            }
+        }
+    });
+
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('add-to-cart')) {
+            const productId = event.target.getAttribute('data-id');
+            
+            fetch('/cart/addToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ productId })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message || 'Product added to cart!');
+            })
+            .catch(error => {
+                alert(error.message || 'Unable to add product to cart.');
+            });
+        }
+    });
+
+
 </script>
+
 @endsection
+
+
