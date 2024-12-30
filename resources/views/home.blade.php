@@ -231,7 +231,7 @@
             <div class="row">
                 <div class="col-12 col-md-6 mb-3 mb-lg-0">
                     <div class="py-5 px-8 rounded"
-                        style="background: url(/storage/product_images/baneer4.png) no-repeat; background-size: cover; background-position: center; padding:15px;">
+                        style="background: url(/storage/product_images/grocery-banner-2.png) no-repeat; background-size: cover; background-position: center; padding:15px;">
                         <h3 class="fw-bold mb-1">最火泡面</h3>
                         <p class="mb-4">
                             全网
@@ -251,7 +251,7 @@
                 <div class="col-12 col-md-6">
                     <div>
                         <div class="py-5 px-8 rounded"
-                            style="background: url(storage/product_images/banner3.png) no-repeat; background-size: cover; background-position: center;padding:15px;">
+                            style="background: url(storage/product_images/grocery-banner.png) no-repeat; background-size: cover; background-position: center;padding:15px;">
                             <div>
                                 <h3 class="fw-bold mb-1">爆款零食</h3>
                                 <p class="mb-4">
