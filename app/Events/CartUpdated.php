@@ -3,9 +3,9 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -30,7 +30,7 @@ class CartUpdated implements ShouldBroadcastNow
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn() {
-        return new PrivateChannel('cart-updates.' . $this->userId);  // 使用私人频道
+        return new PrivateChannel('cart-updates.' . $this->userId);  // Use a private channel.
     }
 
     public function broadcastWith() {

@@ -42,7 +42,7 @@ class ProductAddedToCart implements ShouldBroadcastNow
      */
     public function broadcastAs()
     {
-        return "addToCart";  // 用于通知管理员商品添加到购物车并更新库存
+        return "addToCart";  // Used to notify administrators that items have been added to the shopping cart and to update inventory
     }
 
     /**

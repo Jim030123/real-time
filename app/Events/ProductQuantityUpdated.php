@@ -31,7 +31,7 @@ class ProductQuantityUpdated implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new Channel('products'); // 广播到 'products' 频道
+        return new Channel('products'); // Broadcast to 'products' channel
     }
 
     /**
